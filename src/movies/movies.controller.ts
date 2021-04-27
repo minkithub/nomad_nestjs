@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { Res } from '@nestjs/common/decorators/http/route-params.decorator';
+import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movies.entity';
 import { MoviesService } from './movies.service';
 
@@ -24,31 +27,24 @@ export class MoviesController {
 
     // http://localhost:3000/movies/1
     @Get("/:id")
-    getOne(@Param("id") movieId:string): Movie {
+    getOne(@Param("id") movieId:number): Movie {
         return this.moviesService.getOne(movieId);
     }
 
     // post는 create로 데이터를 생성하는 것이다.
     @Post()
-    create(@Body() movieData){
+    create(@Body() movieData: CreateMovieDto){
         return this.moviesService.createMovie(movieData);
     }
 
     @Delete("/:id")
-    remove(@Param('id') movieId:string){
+    remove(@Param('id') movieId:number){
         return this.moviesService.deleteOne(movieId);
     }
 
     @Patch("/:id")
-    path(@Param('id') movieId:string, @Body() updateData){
-
-        // 위의 Post generator를 통해 body에 movidata가 담겼고, 이를 새로운 param으로 사용해 patch에 적욕, 부분적으로 업데이트한다.
-        return {
-            updatedMovieId:movieId,
-            name:updateData['name'],
-            director:updateData['director'],
-            // ...updateData,
-        }
+    path(@Param('id') movieId:number, @Body() updateData: UpdateMovieDto){
+       this.moviesService.update(movieId, updateData);
     }
 
 }

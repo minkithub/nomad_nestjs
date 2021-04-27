@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movies.entity';
 
 @Injectable()
@@ -10,24 +12,29 @@ export class MoviesService {
         return this.movies;
     }
 
-    getOne(id: string):Movie{
-        const movie= this.movies.find(movie => movie.id === parseInt(id));
+    getOne(id: number):Movie{
+        const movie= this.movies.find(movie => movie.id === id);
         if(!movie){
             throw new NotFoundException(`Movie with Id ${id} not found.`);
         }
         return movie;
     }
  
-    deleteOne(id: string):boolean{
+    deleteOne(id: number){
         this.getOne(id) // getOne에서 오류가 난다는건 해당 id를 가진 movie가 없다는 말이므로 delete도 불가능함.
-        this.movies.filter(movie => movie.id !== parseInt(id))
-        return true;
+        this.movies = this.movies.filter(movie => movie.id !== id)
     }
-
-    createMovie(movidata){
+ 
+    createMovie(movidata: CreateMovieDto){
         this.movies.push({
             id: this.movies.length + 1,
             ...movidata
         })
+    }
+
+    update(id:number, updateData: UpdateMovieDto){
+        const movie = this.getOne(id);
+        this.deleteOne(id);
+        this.movies.push({...movie, ...updateData});
     }
 }
